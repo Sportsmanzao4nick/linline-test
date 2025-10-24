@@ -3,13 +3,32 @@ const mobileMenu = document.getElementById('mobileMenu');
 const header = document.querySelector('.header');
 const menuList = document.getElementById('mobileMenuList');
 
+const getMobileInner = () => mobileMenu ? mobileMenu.querySelector('.mobile-menu__inner') : null;
+const activePanelStack = [];
+const activePanelTriggerStack = [];
+
 function renderMenuItems(items, parentUl) {
   if (!items || !Array.isArray(items)) return;
   items.forEach(item => {
     const li = document.createElement('li');
     li.className = 'mobile-menu__item';
 
-    if (item.children && Array.isArray(item.children) && item.children.length) {
+    const type = (item && item.type) ? String(item.type).toLowerCase() : null;
+    const hasChildren = item.children && Array.isArray(item.children) && item.children.length;
+
+    let resolvedType = type;
+    if (!resolvedType) {
+      if (hasChildren) resolvedType = 'dropdown';
+      else resolvedType = 'link';
+    }
+
+    if (resolvedType === 'link') {
+      const a = document.createElement('a');
+      a.href = item.href || '#';
+      a.textContent = item.title || '';
+      li.appendChild(a);
+
+    } else if (resolvedType === 'dropdown') {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'mobile-menu__toggle';
@@ -19,7 +38,7 @@ function renderMenuItems(items, parentUl) {
 
       const subUl = document.createElement('ul');
       subUl.className = 'mobile-menu__sublist';
-      renderMenuItems(item.children, subUl);
+      renderMenuItems(item.children, subUl, item.title);
       li.appendChild(subUl);
 
       btn.addEventListener('click', () => {
@@ -27,15 +46,95 @@ function renderMenuItems(items, parentUl) {
         btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
       });
 
+    } else if (resolvedType === 'submenu') {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mobile-menu__item mobile-menu__item-panel';
+      btn.textContent = item.title || '';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.addEventListener('click', () => openPanel(item, btn));
+      li.appendChild(btn);
+
     } else {
       const a = document.createElement('a');
-      a.href = '#';
+      a.href = item.href || '#';
       a.textContent = item.title || '';
       li.appendChild(a);
     }
 
     parentUl.appendChild(li);
   });
+}
+
+function createPanel(item) {
+  const mobileInner = getMobileInner();
+  if (!mobileInner) return null;
+
+  const panel = document.createElement('div');
+  panel.className = 'mobile-subpanel';
+
+  const header = document.createElement('div');
+  header.className = 'mobile-subpanel__header';
+
+  const backBtn = document.createElement('button');
+  backBtn.type = 'button';
+  backBtn.className = 'mobile-subpanel__back';
+  backBtn.innerHTML = `
+    <span class="mobile-subpanel__back-round" aria-hidden="true">
+      <img src="./public/icons/arrow-down.svg" alt="back" />
+    </span>
+  `;
+  backBtn.addEventListener('click', () => closePanel());
+
+  const title = document.createElement('div');
+  title.className = 'mobile-subpanel__title';
+  title.textContent = item.title || '';
+
+  header.appendChild(backBtn);
+  header.appendChild(title);
+  panel.appendChild(header);
+
+  const content = document.createElement('div');
+  content.className = 'mobile-subpanel__content';
+
+  const ul = document.createElement('ul');
+  ul.className = 'mobile-menu__list mobile-subpanel__list';
+  renderMenuItems(item.children, ul, item.title);
+  content.appendChild(ul);
+  panel.appendChild(content);
+
+  mobileInner.appendChild(panel);
+  activePanelStack.push(panel);
+  return panel;
+}
+
+function openPanel(item, triggerBtn) {
+  const panel = createPanel(item);
+  if (!panel) return;
+  activePanelTriggerStack.push(triggerBtn || null);
+  const currentTrigger = activePanelTriggerStack[activePanelTriggerStack.length - 1];
+  if (currentTrigger) currentTrigger.setAttribute('aria-expanded', 'true');
+  requestAnimationFrame(() => panel.classList.add('is-open'));
+  requestAnimationFrame(() => {
+    const back = panel.querySelector('.mobile-subpanel__back');
+    if (back) back.focus();
+  });
+}
+
+function closePanel() {
+  if (activePanelStack.length === 0) return;
+  const panel = activePanelStack.pop();
+  panel.classList.remove('is-open');
+  const p = panel;
+  p.addEventListener('transitionend', function onEnd() {
+    p.removeEventListener('transitionend', onEnd);
+    if (p.parentNode) p.parentNode.removeChild(p);
+  });
+  const trigger = activePanelTriggerStack.pop();
+  if (trigger) {
+    try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {}
+    try { trigger.focus(); } catch (e) {}
+  }
 }
 
 function loadMenuFromJson() {
@@ -70,6 +169,10 @@ const proceedMenuLogic = () => {
       img.src = isOpen
         ? './public/icons/close.svg'
         : './public/icons/menu.svg';
+    }
+
+    if (!isOpen) {
+      while (activePanelStack.length) closePanel();
     }
   };
 
