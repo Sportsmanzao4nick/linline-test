@@ -7,6 +7,11 @@ const getMobileInner = () => mobileMenu ? mobileMenu.querySelector('.mobile-menu
 const activePanelStack = [];
 const activePanelTriggerStack = [];
 
+let sharedSubPanel = null;
+let sharedSubUl = null;
+let sharedPanelTitle = null;
+let sharedPanelBackBtn = null;
+
 function renderMenuItems(items, parentUl) {
   if (!items || !Array.isArray(items)) return;
   items.forEach(item => {
@@ -69,6 +74,16 @@ function renderMenuItems(items, parentUl) {
 function createPanel(item) {
   const mobileInner = getMobileInner();
   if (!mobileInner) return null;
+
+  if (sharedSubPanel) {
+    if (sharedSubUl) {
+      sharedSubUl.innerHTML = '';
+      renderMenuItems(item.children, sharedSubUl);
+    }
+    if (sharedPanelTitle) sharedPanelTitle.textContent = item.title || '';
+    activePanelStack.push(sharedSubPanel);
+    return sharedSubPanel;
+  }
 
   const panel = document.createElement('div');
   panel.className = 'mobile-subpanel';
@@ -173,6 +188,58 @@ const proceedMenuLogic = () => {
 
     if (!isOpen) {
       while (activePanelStack.length) closePanel();
+      if (sharedSubPanel && sharedSubPanel.parentNode) {
+        try { sharedSubPanel.parentNode.removeChild(sharedSubPanel); } catch (e) {}
+      }
+      sharedSubPanel = null;
+      sharedSubUl = null;
+      sharedPanelTitle = null;
+      sharedPanelBackBtn = null;
+    } else {
+      const mobileInner = getMobileInner();
+      if (mobileInner && !sharedSubPanel) {
+        sharedSubPanel = document.createElement('div');
+        sharedSubPanel.className = 'mobile-subpanel';
+
+        const header = document.createElement('div');
+        header.className = 'mobile-subpanel__header';
+
+        sharedPanelBackBtn = document.createElement('button');
+        sharedPanelBackBtn.type = 'button';
+        sharedPanelBackBtn.className = 'mobile-subpanel__back';
+        sharedPanelBackBtn.innerHTML = `
+          <span class="mobile-subpanel__back-round" aria-hidden="true">
+            <img src="./public/icons/arrow-down.svg" alt="back" />
+          </span>
+        `;
+        sharedPanelBackBtn.addEventListener('click', () => {
+          sharedSubPanel.classList.remove('is-open');
+          if (sharedSubUl) sharedSubUl.innerHTML = '';
+          const trigger = activePanelTriggerStack.pop();
+          if (trigger) {
+            try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {}
+            try { trigger.focus(); } catch (e) {}
+          }
+        });
+
+        sharedPanelTitle = document.createElement('div');
+        sharedPanelTitle.className = 'mobile-subpanel__title';
+        sharedPanelTitle.textContent = '';
+
+        header.appendChild(sharedPanelBackBtn);
+        header.appendChild(sharedPanelTitle);
+        sharedSubPanel.appendChild(header);
+
+        const content = document.createElement('div');
+        content.className = 'mobile-subpanel__content';
+
+        sharedSubUl = document.createElement('ul');
+        sharedSubUl.className = 'mobile-menu__list mobile-subpanel__list';
+        content.appendChild(sharedSubUl);
+        sharedSubPanel.appendChild(content);
+
+        mobileInner.appendChild(sharedSubPanel);
+      }
     }
   };
 

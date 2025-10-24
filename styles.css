@@ -310,16 +310,20 @@ body.mobile-menu-open {
   width: 100%;
   height: 100%;
   transform: translateX(100%);
-  transition: transform 0.5s ease;
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
   z-index: 30;
   display: flex;
   flex-direction: column;
-  will-change: transform;
+  will-change: transform, opacity;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .mobile-subpanel.is-open {
   transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .mobile-subpanel__header {
