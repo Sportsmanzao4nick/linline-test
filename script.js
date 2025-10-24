@@ -75,7 +75,6 @@ function createPanel(item) {
   const mobileInner = getMobileInner();
   if (!mobileInner) return null;
 
-  // Если общая панель уже создана и нет активных панелей — переиспользуем её
   if (sharedSubPanel && activePanelStack.length === 0) {
     if (sharedSubUl) {
       sharedSubUl.innerHTML = '';
@@ -87,7 +86,6 @@ function createPanel(item) {
     return sharedSubPanel;
   }
 
-  // В других случаях создаём новую панель (для вложенных переходов)
   const panel = document.createElement('div');
   panel.className = 'mobile-subpanel';
 
@@ -121,9 +119,7 @@ function createPanel(item) {
   content.appendChild(ul);
   panel.appendChild(content);
 
-  // Если есть предыдущ открытая панель, мы хотим, чтобы новая появилась поверх неё и выехала справа -> просто добавляем в DOM
   mobileInner.appendChild(panel);
-  // Небольшая пауза перед добавлением класса для корректного trigger анимации
   requestAnimationFrame(() => panel.classList.add('is-open'));
 
   activePanelStack.push(panel);
@@ -147,7 +143,6 @@ function closePanel() {
   if (activePanelStack.length === 0) return;
   const panel = activePanelStack.pop();
 
-  // Если это shared-панель — скрываем её и очищаем содержимое, но не удаляем из DOM
   if (panel === sharedSubPanel) {
     panel.classList.remove('is-open');
     if (sharedSubUl) sharedSubUl.innerHTML = '';
@@ -159,7 +154,6 @@ function closePanel() {
     return;
   }
 
-  // Для обычных (созданных динамически) панелей — анимируем скрытие и удаляем после завершения перехода
   panel.classList.remove('is-open');
   const p = panel;
   p.addEventListener('transitionend', function onEnd() {
