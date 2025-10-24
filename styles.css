@@ -164,13 +164,13 @@ button {
 .mobile-menu {
   position: fixed;
   left: 0;
-  width: 100%;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
   background: var(--color-white);
   will-change: transform;
   overflow: hidden;
   max-width: 768px;
+  width: 100vw;
   z-index: 200;
 }
 
@@ -181,8 +181,6 @@ button {
 .mobile-menu__inner {
   padding: 24px 15px 32px 15px;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
   position: relative;
 }
 
@@ -308,21 +306,27 @@ body.mobile-menu-open {
   position: absolute;
   top: 0;
   right: 0;
-  width: 100%;
+  width: 100vw;
   height: 100%;
-  transform: translateX(100%);
+  transform: translate3d(-100%, 0, 0);
   opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  transition: transform .5s ease, opacity .5s ease;
   z-index: 30;
   display: flex;
   flex-direction: column;
   will-change: transform, opacity;
   overflow: hidden;
   pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.mobile-subpanel-container {
+  width: 100%;
+  height: 100%;
 }
 
 .mobile-subpanel.is-open {
-  transform: translateX(0);
+  transform: translate3d(0, 0, 0);
   opacity: 1;
   pointer-events: auto;
 }
