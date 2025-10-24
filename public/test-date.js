@@ -10,7 +10,7 @@ window.MENU_DATA = {
       "children": [
         {
           "title": "Консультации",
-          "type": "link"
+          "type": "dropdown"
         },
         {
           "title": "Лазерная косметология",
