@@ -142,9 +142,6 @@ button {
 }
 
 .header__button {
-  font-weight: 500;
-  font-size: 13px;
-  line-height: 17px;
   width: 100%;
 }
 
@@ -155,6 +152,9 @@ button {
   border-radius: 40px;
   color: var(--color--mainblue);
   display: flex;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
   justify-content: center;
   width: 160px;
   height: 38px;
@@ -182,6 +182,7 @@ button {
   padding: 24px 15px 32px 15px;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
