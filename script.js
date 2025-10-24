@@ -75,16 +75,19 @@ function createPanel(item) {
   const mobileInner = getMobileInner();
   if (!mobileInner) return null;
 
-  if (sharedSubPanel) {
+  // Если общая панель уже создана и нет активных панелей — переиспользуем её
+  if (sharedSubPanel && activePanelStack.length === 0) {
     if (sharedSubUl) {
       sharedSubUl.innerHTML = '';
       renderMenuItems(item.children, sharedSubUl);
     }
     if (sharedPanelTitle) sharedPanelTitle.textContent = item.title || '';
+
     activePanelStack.push(sharedSubPanel);
     return sharedSubPanel;
   }
 
+  // В других случаях создаём новую панель (для вложенных переходов)
   const panel = document.createElement('div');
   panel.className = 'mobile-subpanel';
 
@@ -118,7 +121,11 @@ function createPanel(item) {
   content.appendChild(ul);
   panel.appendChild(content);
 
+  // Если есть предыдущ открытая панель, мы хотим, чтобы новая появилась поверх неё и выехала справа -> просто добавляем в DOM
   mobileInner.appendChild(panel);
+  // Небольшая пауза перед добавлением класса для корректного trigger анимации
+  requestAnimationFrame(() => panel.classList.add('is-open'));
+
   activePanelStack.push(panel);
   return panel;
 }
@@ -139,6 +146,20 @@ function openPanel(item, triggerBtn) {
 function closePanel() {
   if (activePanelStack.length === 0) return;
   const panel = activePanelStack.pop();
+
+  // Если это shared-панель — скрываем её и очищаем содержимое, но не удаляем из DOM
+  if (panel === sharedSubPanel) {
+    panel.classList.remove('is-open');
+    if (sharedSubUl) sharedSubUl.innerHTML = '';
+    const trigger = activePanelTriggerStack.pop();
+    if (trigger) {
+      try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {}
+      try { trigger.focus(); } catch (e) {}
+    }
+    return;
+  }
+
+  // Для обычных (созданных динамически) панелей — анимируем скрытие и удаляем после завершения перехода
   panel.classList.remove('is-open');
   const p = panel;
   p.addEventListener('transitionend', function onEnd() {
@@ -212,15 +233,7 @@ const proceedMenuLogic = () => {
             <img src="./public/icons/arrow-down.svg" alt="back" />
           </span>
         `;
-        sharedPanelBackBtn.addEventListener('click', () => {
-          sharedSubPanel.classList.remove('is-open');
-          if (sharedSubUl) sharedSubUl.innerHTML = '';
-          const trigger = activePanelTriggerStack.pop();
-          if (trigger) {
-            try { trigger.setAttribute('aria-expanded', 'false'); } catch (e) {}
-            try { trigger.focus(); } catch (e) {}
-          }
-        });
+        sharedPanelBackBtn.addEventListener('click', () => closePanel());
 
         sharedPanelTitle = document.createElement('div');
         sharedPanelTitle.className = 'mobile-subpanel__title';
