@@ -401,7 +401,7 @@ body.mobile-menu-open {
   flex-direction: column;
   gap: 4px;
   text-decoration: none;
-  transition: transform 180ms ease;
+  transition: transform 180ms ease, color 200ms ease;
   will-change: transform;
   transform-origin: center;
   cursor: pointer;
@@ -410,6 +410,13 @@ body.mobile-menu-open {
 .footer__item:hover,
 .footer__item:focus {
   transform: scale(1.2);
+}
+
+.footer__item-animated:hover,
+.footer__item-animated:focus {
+  animation-play-state: paused;
+  color: var(--color--mainblue);
+  transform: none;
 }
 
 .footer__item-text {
@@ -421,4 +428,53 @@ body.mobile-menu-open {
 
 .footer__item-text.is-active {
   color: var(--color--mainblue);
+}
+
+.footer__item-animated {
+  animation: footerPulse 5s ease-in-out infinite;
+  will-change: transform, color;
+  color: var(--color-grey);
+}
+
+.footer__item-animated .footer__item-text {
+  color: inherit;
+}
+
+.footer__item-animated .footer__item-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  transition: stroke 200ms ease, transform 200ms ease;
+  will-change: stroke;
+  fill: var(--color-white);
+  stroke: currentColor;
+}
+
+.footer__item-animated:hover .footer__item-icon,
+.footer__item-animated:focus .footer__item-icon {
+  transform: scale(1.2);
+  color: var(--color--mainblue);
+  stroke: var(--color--mainblue);
+}
+
+.footer__item-animated:hover .footer__item-text,
+.footer__item-animated:focus .footer__item-text {
+  transform: scale(1.2);
+  color: var(--color--mainblue);
+  stroke: var(--color--mainblue);
+}
+
+@keyframes footerPulse {
+  0% {
+    transform: scale(1);
+    color: var(--color-grey);
+  }
+  50% {
+    transform: scale(1.2);
+    color: var(--color--mainblue);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--color-grey);
+  }
 }
