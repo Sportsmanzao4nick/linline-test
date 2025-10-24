@@ -46,6 +46,7 @@ button {
   font-family: 'TT Fellows', 'Arial', sans-serif;
 }
 
+
 .header {
   border-bottom: 1px solid var(--color--lightblue);
   padding-bottom: 14px;
@@ -169,6 +170,7 @@ button {
   background: var(--color-white);
   will-change: transform;
   overflow: hidden;
+  max-width: 768px;
   z-index: 200;
 }
 
@@ -373,6 +375,7 @@ body.mobile-menu-open {
   border-top: 1px solid var(--color--lightblue);
   bottom: 0;
   display: flex;
+  max-width: 768px;
   gap: 10px;
   justify-content: space-between;
   opacity: 1;
@@ -388,6 +391,15 @@ body.mobile-menu-open {
   flex-direction: column;
   gap: 4px;
   text-decoration: none;
+  transition: transform 180ms ease;
+  will-change: transform;
+  transform-origin: center;
+  cursor: pointer;
+}
+
+.footer__item:hover,
+.footer__item:focus {
+  transform: scale(1.2);
 }
 
 .footer__item-text {
