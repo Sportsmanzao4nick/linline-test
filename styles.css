@@ -416,7 +416,7 @@ body.mobile-menu-open {
 .footer__item-animated:focus {
   animation-play-state: paused;
   color: var(--color--mainblue);
-  transform: none;
+  transform: scale(1.2);
 }
 
 .footer__item-text {
@@ -450,31 +450,14 @@ body.mobile-menu-open {
   stroke: currentColor;
 }
 
-.footer__item-animated:hover .footer__item-icon,
-.footer__item-animated:focus .footer__item-icon {
-  transform: scale(1.2);
-  color: var(--color--mainblue);
-  stroke: var(--color--mainblue);
-}
-
-.footer__item-animated:hover .footer__item-text,
-.footer__item-animated:focus .footer__item-text {
-  transform: scale(1.2);
-  color: var(--color--mainblue);
-  stroke: var(--color--mainblue);
-}
-
 @keyframes footerPulse {
   0% {
-    transform: scale(1);
     color: var(--color-grey);
   }
   50% {
-    transform: scale(1.2);
     color: var(--color--mainblue);
   }
   100% {
-    transform: scale(1);
     color: var(--color-grey);
   }
 }
